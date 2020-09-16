@@ -7,6 +7,13 @@
 Useful scripts made with AutoIt
 
 
+### Scripts List
+
++ [SFTA](./Scripts/SFTA) - Set File Type Association Default Application Windows 10
+
+
+
+
 <!-- ## Acknowledgments & Credits -->
 
 
