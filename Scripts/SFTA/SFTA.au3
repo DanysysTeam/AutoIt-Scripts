@@ -1,3 +1,20 @@
+#cs Copyright
+    Copyright 2020 Danysys. <hello@danysys.com>
+
+    Licensed under the MIT license.
+    See LICENSE file or go to https://opensource.org/licenses/MIT for details.
+#ce Copyright
+
+#cs Information
+    Author(s)......: DanysysTeam (Danyfirex & Dany3j)
+    Description....: Set File Type Association Default Application Windows 10
+    Version........: 1.0.0
+    AutoIt Version.: 3.3.14.5
+	Thanks to .....:
+					 https://bbs.pediy.com/thread-213954.htm
+                     LMongrain - Hash Algorithm PureBasic Version
+#ce Information
+
 ;~ #AutoIt3Wrapper_UseX64=y
 #include <Crypt.au3>
 #include <WinAPIReg.au3>
@@ -6,13 +23,13 @@
 
 
 #Region Example
-If _SerFileTypeAssociation("Applications\SumatraPDF.exe", ".pdf") Then
+If _SetFileTypeAssociation("Applications\SumatraPDF.exe", ".pdf") Then
 	ConsoleWrite(">_SerFileTypeAssociation OK" & @CRLF)
 EndIf
 #EndRegion Example
 
 
-Func _SerFileTypeAssociation($sProgId, $sExtension)
+Func _SetFileTypeAssociation($sProgId, $sExtension)
 	Local $sProgIdHash = _GenerateProgIdHash($sProgId, $sExtension)
 
 	Local $hKey = _WinAPI_RegOpenKey($HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\" & $sExtension & "\UserChoice", $KEY_READ)
@@ -88,7 +105,7 @@ Func _GenerateHash($sTextInfo)
 	Return $sHashBase64
 EndFunc   ;==>_GenerateHash
 
-;LMongrain - Hash Algorithm PureBasic Version
+
 Func _Hash($ptbTextInfo, $pMD5, $iLen)
 	Local $tHash = DllStructCreate("byte Data[16]")
 	Local $pHash = DllStructGetPtr($tHash, 1)
@@ -98,9 +115,10 @@ Func _Hash($ptbTextInfo, $pMD5, $iLen)
 	Local Enum $ePDATA, $eCACHE, $eCOUNTER, $eINDEX, $eMD51, $eMD52, $eOUTHASH1, $eOUTHASH2, _
 			$eR0, $eR1_0, $eR1_1, $eR2_0, $eR2_1, $eR3, $eR4_0, $eR4_1, $eR5_0, $eR5_1, _
 			$eR6_0, $eR6_1, $eR7_0, $eR7_1, $eR7_2, $eR8, $eR9_0, $eR9_1, $eR9_2, $eMAP_SIZE
-	Local $aMap1[$eMAP_SIZE]
+
 	If $iHLen < 1 Then Return SetError(1, 0, $tHashBase.Data)
 
+    Local $aMap1[$eMAP_SIZE]
 	$aMap1[$eCACHE] = 0
 	$aMap1[$eOUTHASH1] = 0
 	$aMap1[$ePDATA] = $ptbTextInfo
