@@ -69,7 +69,7 @@ EndFunc   ;==>_SFTA
 #EndRegion Public Funcions
 
 
-#Region Private Functions
+#Region #INTERNAL_USE_ONLY#
 Func __FTA_GenerateProgIdHash($sProgId, $sExtension)
 	Local $sExperienceString = __FTA_GetExperienceString()
 	Local $sDateTime = __FTA_GenerateDateTime()
@@ -260,4 +260,4 @@ Func __FTA_Base64Encode($input)
 
 EndFunc   ;==>__FTA_Base64Encode
 
-#EndRegion Private Functions
+#EndRegion #INTERNAL_USE_ONLY#
