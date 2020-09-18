@@ -84,7 +84,7 @@ EndFunc   ;==>_Print
 
 ## Acknowledgments & Credits
 
-https://stackoverflow.com/a/11642687/2449774
+https://stackoverflow.com/a/11642687/2449774 \
 https://github.com/jiawenhao2015/wordninja \
 https://github.com/keredson/wordninja 
 
