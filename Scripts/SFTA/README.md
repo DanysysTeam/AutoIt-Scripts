@@ -1,5 +1,6 @@
 # SFTA
 
+[![AutoIt Version](https://img.shields.io/badge/AutoIt-3.3.14.5-blue.svg)]()
 [![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 [![Made with Love](https://img.shields.io/badge/Made%20with-%E2%9D%A4-red.svg?colorB=11a9f7)]()
 
