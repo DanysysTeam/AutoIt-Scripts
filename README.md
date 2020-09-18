@@ -11,6 +11,7 @@ Useful scripts made with AutoIt
 
 + [SFTA](./Scripts/SFTA) - Set File Type Association Default Application Windows 10
 
++ [WordNinja](./Scripts/WordNinja) - Probabilistically split concatenated words
 
 
 
