@@ -25,11 +25,31 @@
 #include <WinAPIReg.au3>
 #include <WinAPIShellEx.au3>
 #include <Date.au3>
+#include <File.au3>
+#include <WinAPIReg.au3>
 #EndRegion Include
 
 
 ; #CURRENT# =====================================================================================================================
 ;_Set_FTA
+;_Register_FTA
+;_Remove_FTA
+; ===============================================================================================================================
+
+
+; #INTERNAL_USE_ONLY# ===========================================================================================================
+;__FTA_GenerateProgId
+;__FTA_GetFileName
+;__FTA_GenerateProgIdHash
+;__FTA_GetExperienceString
+;__FTA_GenerateDateTime
+;__FTA_GetUserSid
+;__FTA_GenerateHash
+;__FTA_Hash
+;__FTA_Base64Encode
+;__FTA_BitShift
+;__FTA_PokeL
+;__FTA_PeekL
 ; ===============================================================================================================================
 
 
@@ -66,10 +86,82 @@ Func _Set_FTA($sProgId, $sExtension)
 	Return (RegRead($sRegHash, "Hash") = $sProgIdHash And RegRead($sRegProgId, "ProgId") = $sProgId)
 EndFunc   ;==>_SFTA
 
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Register_FTA
+; Description ...:
+; Syntax ........: _Register_FTA($sFilePath, $sExtension[, $sCustomProgId = ""[, $sIconPath = ""]])
+; Parameters ....: $sFilePath           - Application File Path to Register
+;                  $sExtension          - File Extension.
+;                  $sCustomProgId       - [optional] "" Custom ProgramId - Empty for generate.
+;                  $sIconPath           - [optional] "" Icon Path to set to extension.
+; Return values .: Success      - True
+;                  Failure      - False
+; Author ........: DanysysTeam
+; Modified ......:
+; Remarks .......:
+; Related .......: _Set_FTA, __FTA_GenerateProgId
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Register_FTA($sFilePath, $sExtension, $sCustomProgId = "", $sIconPath = "")
+	If $sCustomProgId = "" Then $sCustomProgId = __FTA_GenerateProgId($sFilePath, $sExtension)
+	Local $sCommand = '"' & $sFilePath & '" "%1"'
+
+	RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sExtension & "\OpenWithProgids")
+	Local $hKey = _WinAPI_RegOpenKey($HKEY_CURRENT_USER, "SOFTWARE\Classes\" & $sExtension & "\OpenWithProgids")
+	Local $iRegNone = _WinAPI_RegSetValue($hKey, $sCustomProgId, $REG_NONE, "", 0)
+	_WinAPI_RegCloseKey($hKey)
+
+	If $iRegNone And RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId) And _
+			RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId & "\shell\open\command", "", "REG_SZ", $sCommand) Then
+
+		If $sIconPath Then
+			RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId & "\DefaultIcon", "", "REG_SZ", $sIconPath)
+		EndIf
+
+		Return _Set_FTA($sCustomProgId, $sExtension)
+	EndIf
+	Return False
+EndFunc   ;==>_Register_FTA
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Remove_FTA
+; Description ...:
+; Syntax ........: _Remove_FTA($sFilePath_ProgId, $sExtension)
+; Parameters ....: $sFilePath_ProgId    - Application File Path or Program Id.
+;                  $sExtension          - File Extension.
+; Return values .: None
+; Author ........: DanysysTeam
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Remove_FTA($sFilePath_ProgId, $sExtension)
+	Local $sCustomProgId = $sFilePath_ProgId
+	If FileExists($sFilePath_ProgId) Then $sCustomProgId = __FTA_GenerateProgId($sFilePath_ProgId, $sExtension)
+	RegDelete("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sExtension & "\OpenWithProgids", $sCustomProgId)
+	RegDelete("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId)
+    _WinAPI_ShellChangeNotify($SHCNE_ASSOCCHANGED, $SHCNF_IDLIST, 0, 0)
+EndFunc   ;==>_Remove_FTA
 #EndRegion Public Funcions
 
 
 #Region Private Functions
+Func __FTA_GenerateProgId($sFilePath, $sExtension)
+	Local $sFileName = StringStripWS(__FTA_GetFileName($sFilePath), 8)
+	Return "SFTA." & $sFileName & $sExtension
+EndFunc   ;==>__FTA_GenerateProgId
+
+Func __FTA_GetFileName($sFilePath)
+	Local $sDrive = "", $sDir = "", $sFileName = "", $sExtension = ""
+	Local $aPathSplit = _PathSplit($sFilePath, $sDrive, $sDir, $sFileName, $sExtension)
+	Return $sFileName
+EndFunc   ;==>__FTA_GetFileName
+
 Func __FTA_GenerateProgIdHash($sProgId, $sExtension)
 	Local $sExperienceString = __FTA_GetExperienceString()
 	Local $sDateTime = __FTA_GenerateDateTime()

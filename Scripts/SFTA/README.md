@@ -29,6 +29,47 @@ EndIf
 
 ```
 
+##### Register Custom Application and Extension:
+```autoit
+#include "SFTA.au3"
+
+#Region Example
+_Example()
+#EndRegion Example
+
+
+Func _Example()
+	Local Const $sAut2Exe = RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\AutoIt v3\Autoit", "InstallDir") & "\Aut2Exe\Aut2Exe.exe"
+	If Not FileExists($sAut2Exe) Then Exit MsgBox(0, "Error", "Unable to find Aut2Exe.exe Path")
+
+	;Create CustomApp Script and .fta File
+	Local Const $sMyCustomApp = '#include <Array.au3>' & @CRLF & 'MsgBox(0,"I''m Default App for .fta files",_ArrayToString($CmdLine,@CRLF))'
+	FileDelete(@ScriptDir & "\CustomApp.au3")
+	FileWrite(@ScriptDir & "\CustomApp.au3", $sMyCustomApp)
+	FileWrite(@ScriptDir & "\Danyfirex.fta", "Hello World")
+
+	;Compile CustomApp
+	Local $sParameters = '/in "' & @ScriptDir & "\CustomApp.au3" & '" /out "' & @ScriptDir & "\CustomApp.exe" & '"'
+	Local $iRet = RunWait($sAut2Exe & " " & $sParameters)
+
+	;Test Association
+	_Register_FTA(@ScriptDir & "\CustomApp.exe", ".fta", "", "shell32.dll,100")
+	Sleep(1000)
+	ShellExecuteWait(@ScriptDir & "\Danyfirex.fta") ;test associated application
+	Sleep(1000)
+	_Remove_FTA(@ScriptDir & "\CustomApp.exe", ".fta")
+	ShellExecuteWait(@ScriptDir & "\Danyfirex.fta") ;test again associated application. It will fail.
+
+	;Remove/Delete
+	FileDelete(@ScriptDir & "\CustomApp.au3")
+	FileDelete(@ScriptDir & "\CustomApp.exe")
+	FileDelete(@ScriptDir & "\Danyfirex.fta")
+EndFunc   ;==>_Example2
+
+```
+
+
+
 
 <!-- ## Acknowledgments & Credits -->
 
