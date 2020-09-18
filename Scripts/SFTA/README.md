@@ -64,7 +64,7 @@ Func _Example()
 	FileDelete(@ScriptDir & "\CustomApp.au3")
 	FileDelete(@ScriptDir & "\CustomApp.exe")
 	FileDelete(@ScriptDir & "\Danyfirex.fta")
-EndFunc   ;==>_Example2
+EndFunc   ;==>_Example
 
 ```
 
