@@ -5,7 +5,7 @@
 [![Made with Love](https://img.shields.io/badge/Made%20with-%E2%9D%A4-red.svg?colorB=11a9f7)]()
 
 
-Set File Type Association Default Application Windows 10
+Set File/Protocol Type Association Default Application Windows 10
 
 
 ### Description
@@ -23,12 +23,30 @@ Since Windows 8, Microsoft has changed the way to set the default application as
 
 #Region Example
 If _Set_FTA("Applications\SumatraPDF.exe", ".pdf") Then
-	ConsoleWrite(">_SerFileTypeAssociation OK" & @CRLF)
+	ConsoleWrite(">_Set_FTA OK" & @CRLF)
 EndIf
 #EndRegion Example
 
 
 ```
+
+##### Set Google Chrome as Default for http Protocol:
+```autoit
+
+#include "SFTA.au3"
+
+#Region Example
+If _Set_PTA("ChromeHTML", "http") Then
+		ConsoleWrite(">_Set_PTA OK" & @CRLF)
+		ShellExecute("http:\\autoit.com")
+EndIf
+#EndRegion Example
+
+
+```
+
+
+
 
 ##### Register Custom Application and Extension:
 ```autoit
