@@ -8,7 +8,7 @@
 #cs Information
     Author(s)......: DanysysTeam (Danyfirex & Dany3j)
     Description....: Set File Type Association Default Application Windows 10
-    Version........: 1.0.0
+    Version........: 1.1.0
     AutoIt Version.: 3.3.14.5
 	Thanks to .....:
 					 https://bbs.pediy.com/thread-213954.htm
@@ -32,7 +32,9 @@
 
 ; #CURRENT# =====================================================================================================================
 ;_Set_FTA
+;_Set_PTA
 ;_Register_FTA
+;_Register_PTA
 ;_Remove_FTA
 ; ===============================================================================================================================
 
@@ -84,7 +86,79 @@ Func _Set_FTA($sProgId, $sExtension)
 	_WinAPI_ShellChangeNotify($SHCNE_ASSOCCHANGED, $SHCNF_IDLIST, 0, 0)
 
 	Return (RegRead($sRegHash, "Hash") = $sProgIdHash And RegRead($sRegProgId, "ProgId") = $sProgId)
-EndFunc   ;==>_SFTA
+EndFunc   ;==>_Set_FTA
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Set_PTA
+; Description ...:
+; Syntax ........: _Set_PTA($sProgId, $sProtocol)
+; Parameters ....: $sProgId             - Application Program Id.
+;                  $sProtocol          - Protocol Type.
+; Return values .: Success      - True
+;                  Failure      - False
+; Author ........: DanysysTeam
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Set_PTA($sProgId, $sProtocol)
+	Local $sProgIdHash = __FTA_GenerateProgIdHash($sProgId, $sProtocol)
+
+	Local $hKey = _WinAPI_RegOpenKey($HKEY_CURRENT_USER, "Software\Microsoft\Windows\Shell\Associations\UrlAssociations\" & $sProtocol & "\UserChoice", $KEY_READ)
+	_WinAPI_RegDeleteKey($hKey)
+	_WinAPI_RegCloseKey($hKey)
+
+	Local $sRegHash = "HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\" & $sProtocol & "\UserChoice"
+	Local $sRegProgId = "HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\" & $sProtocol & "\UserChoice"
+	RegWrite($sRegHash, "Hash", "REG_SZ", $sProgIdHash)
+	RegWrite($sRegProgId, "ProgId", "REG_SZ", $sProgId)
+
+	_WinAPI_ShellChangeNotify($SHCNE_ASSOCCHANGED, $SHCNF_IDLIST, 0, 0)
+
+	Return (RegRead($sRegHash, "Hash") = $sProgIdHash And RegRead($sRegProgId, "ProgId") = $sProgId)
+EndFunc   ;==>_Set_PTA
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Register_PTA
+; Description ...:
+; Syntax ........: _Register_PTA($sFilePath, $sProtocol[, $sCustomProgId = ""[, $sIconPath = ""]])
+; Parameters ....: $sFilePath           - Application File Path to Register
+;                  $sProtocol           - Protocol Type.
+;                  $sCustomProgId       - [optional] "" Custom ProgramId - Empty for generate.
+;                  $sIconPath           - [optional] "" Icon Path to set to extension.
+; Return values .: Success      - True
+;                  Failure      - False
+; Author ........: DanysysTeam
+; Modified ......:
+; Remarks .......:
+; Related .......: _Set_PTA, __FTA_GenerateProgId
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Register_PTA($sFilePath, $sProtocol, $sCustomProgId = "", $sIconPath = "")
+	If $sCustomProgId = "" Then $sCustomProgId = __FTA_GenerateProgId($sFilePath, $sProtocol)
+	Local $sCommand = '"' & $sFilePath & '" "%1"'
+
+	RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sProtocol & "\OpenWithProgids")
+	Local $hKey = _WinAPI_RegOpenKey($HKEY_CURRENT_USER, "SOFTWARE\Classes\" & $sProtocol & "\OpenWithProgids")
+	Local $iRegNone = _WinAPI_RegSetValue($hKey, $sCustomProgId, $REG_NONE, "", 0)
+	_WinAPI_RegCloseKey($hKey)
+
+	If $iRegNone And RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId) And _
+			RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId & "\shell\open\command", "", "REG_SZ", $sCommand) Then
+
+		If $sIconPath Then
+			RegWrite("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId & "\DefaultIcon", "", "REG_SZ", $sIconPath)
+		EndIf
+
+		Return _Set_PTA($sCustomProgId, $sProtocol)
+	EndIf
+	Return False
+EndFunc   ;==>_Register_PTA
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -145,7 +219,7 @@ Func _Remove_FTA($sFilePath_ProgId, $sExtension)
 	If FileExists($sFilePath_ProgId) Then $sCustomProgId = __FTA_GenerateProgId($sFilePath_ProgId, $sExtension)
 	RegDelete("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sExtension & "\OpenWithProgids", $sCustomProgId)
 	RegDelete("HKEY_CURRENT_USER\SOFTWARE\Classes\" & $sCustomProgId)
-    _WinAPI_ShellChangeNotify($SHCNE_ASSOCCHANGED, $SHCNF_IDLIST, 0, 0)
+	_WinAPI_ShellChangeNotify($SHCNE_ASSOCCHANGED, $SHCNF_IDLIST, 0, 0)
 EndFunc   ;==>_Remove_FTA
 #EndRegion Public Funcions
 
